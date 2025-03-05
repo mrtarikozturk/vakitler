@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gouda Namaz Vakitleri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            background: #52426A;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Gouda Namaz Vakitleri</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>İmsak</th>
+                <th>Güneş</th>
+                <th>Öğle</th>
+                <th>İkindi</th>
+                <th>Akşam</th>
+                <th>Yatsı</th>
+            </tr>
+        </thead>
+        <tbody id="prayer-times"></tbody>
+    </table>
+    <script>
+        async function loadPrayerTimes() {
+            try {
+                const response = await fetch("./gouda.json");
+                const data = await response.json();
+                
+                const today = new Date();
+                const start = new Date(today.getFullYear(), 0, 0);
+                const diff = today - start;
+                const oneDay = 1000 * 60 * 60 * 24;
+                const dayOfYear = Math.floor(diff / oneDay);
+                
+                const todayData = data.Sheet1[dayOfYear - 1]; // Dizide sıfırdan başladığı için -1 yapıyoruz
+                
+                if (todayData) {
+                    document.getElementById("prayer-times").innerHTML = `
+                        <tr>
+                            <td>${todayData["Diyanet İşleri Başkanlığı | Gouda İçin Namaz Vakti "]}</td>
+                            <td>${todayData.Column3}</td>
+                            <td>${todayData.Column4}</td>
+                            <td>${todayData.Column5}</td>
+                            <td>${todayData.Column6}</td>
+                            <td>${todayData.Column7}</td>
+                            <td>${todayData.Column8}</td>
+                        </tr>
+                    `;
+                } else {
+                    document.getElementById("prayer-times").innerHTML = "<tr><td colspan='7'>Bugünün namaz vakitleri bulunamadı.</td></tr>";
+                }
+            } catch (error) {
+                console.error("Veri yüklenirken hata oluştu: ", error);
+                document.getElementById("prayer-times").innerHTML = "<tr><td colspan='7'>Veri yüklenemedi.</td></tr>";
+            }
+        }
+        
+        loadPrayerTimes();
+    </script>
+</body>
+</html>
